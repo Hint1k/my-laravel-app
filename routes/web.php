@@ -1,5 +1,6 @@
 <?php
-use App\Http\Controllers\ProfileController;
+
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 
 class Task
@@ -56,44 +57,24 @@ $tasks = [
     ),
 ];
 
-Route::get('/', function () use ($tasks) {
+Route::get('/', function () {
+    return redirect()->route('tasks.index');
+})->name('main');
+
+Route::get('/tasks', function () use ($tasks) {
     return view('index', [
         'tasks' => $tasks
-//        'name' => 'Hint1k'
     ]); //shows 'index' page from resources/views
-    //    return 'Main page';
-    //    return view('welcome');
 })->name('tasks.index');
 
-Route::get('/{id}', function ($id) {
-   return "One single task with id: " . $id;
+Route::get('/tasks/{id}', function ($id) use ($tasks) {
+    $task = collect($tasks)->firstWhere('id', $id);
+    if (!$task) {
+        abort(Response::HTTP_NOT_FOUND);
+    }
+    return view('show', ['task' => $task]);
 })->name('tasks.show');
 
-//Route::get('/hello/{name}', function ($name) {
-//    return 'Hello ' . $name . '!';
-//})->name('hello + name');
-//
-//Route::get('/hello', function () {
-//    return 'Hello!';
-//})->name('hello');
-//
-//Route::get('/hallo', function () { // misspelled hello
-////    return redirect('/hello'); // without route names
-//    return redirect()->route('hello'); //with route names
-//})->name('misspelled hello');
-
 Route::fallback(function () {
-   return 'This is a fallback page';
+    return 'This is a fallback page';
 });
-
-//Route::get('/dashboard', function () {
-//    return view('dashboard');
-//})->middleware(['auth', 'verified'])->name('dashboard');
-//
-//Route::middleware('auth')->group(function () {
-//    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-//    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-//    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-//});
-//
-//require __DIR__ . '/auth.php';
