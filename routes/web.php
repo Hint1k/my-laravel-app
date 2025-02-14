@@ -9,7 +9,7 @@ Route::get('/', function () {
 })->name('main');
 
 Route::get('/tasks', function () {
-    $tasks = Task::latest()->where('completed', true)->get();
+    $tasks = Task::latest()->paginate(10);
     return view('index', ['tasks' => $tasks]);
 })->name('tasks.index');
 
@@ -33,6 +33,16 @@ Route::put('/tasks/{task}', function (Task $task, TaskRequest $request) {
     $task->update($request->validated());
     return redirect()->route('tasks.show', ['task' => $task->id])->with('success', 'Task updated successfully!');
 })->name('tasks.update');
+
+Route::put('/tasks/{task}/toggle-complete', function (Task $task) {
+    $task->toggleComplete(); // the function is defined in Task.php
+    return redirect()->back()->with('success', 'Task updated successfully!');
+})->name('tasks.toggle-complete');
+
+Route::delete('/tasks/{task}', function (Task $task) {
+    $task->delete();
+    return redirect()->route('tasks.index')->with('success', 'Task deleted successfully!');
+}) ->name('tasks.destroy');
 
 Route::fallback(function () {
     return 'This is a fallback page';
